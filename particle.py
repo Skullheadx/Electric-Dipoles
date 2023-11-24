@@ -10,7 +10,6 @@ class PointParticle:
     BLUE = (0, 153, 255)
     RED = (255, 43, 0)
 
-    line_step = pygame.Vector2(10, 0)
 
     def __init__(self, position, charge=1.6e-19):
         self.position = pygame.Vector2(position)
@@ -21,9 +20,11 @@ class PointParticle:
         self.colour = self.RED if self.charge < 0 else self.BLUE
         self.sign = self.signs['−' if self.charge < 0 else '+']
 
-        self.num_field_lines = int(self.charge / 1.6e-19 * 8)  # default will be 8 lines
+        self.num_field_lines = int(abs(self.charge) / 1.6e-19 * 8)  # default will be 8 lines
         self.field_line_angles = list(range(0, 360, int(360 / self.num_field_lines)))  # List of angles
         self.field_lines = [[] for _ in range(self.num_field_lines)]
+
+        self.line_step = pygame.Vector2(10, 0) if self.charge > 0 else pygame.Vector2(-10, 0)
 
     def update(self, delta, particles):
         if self.dragging or not (True in [p.dragging for p in particles]):
@@ -36,14 +37,14 @@ class PointParticle:
             elif self.dragging:
                 self.dragging = False
 
-        particle_positions = {tuple(p.position) for p in particles}
-
+        if self.charge < 0: # Ensuring that only positive field lines are drawn
+            return
         for field_line_index, angle in enumerate(self.field_line_angles):
             self.field_lines[field_line_index].clear()
             position = self.position.copy()
             direction = angle
             end = False
-            for i in range(250):
+            for i in range(500):
                 position += self.line_step.copy().rotate(math.degrees(direction))
 
                 electric_field_x_net = 0
@@ -53,6 +54,8 @@ class PointParticle:
                     if diff.length() < particle.radius and particle is not self:
                         end = True
                         break
+                    if particle is self and diff.length() == 0:
+                        continue
                     angle = math.atan2(diff.y, diff.x)  # radians
                     electric_field = 8.99e9 * particle.charge / pow(diff.length(), 2)
                     electric_field_x_net += electric_field * math.cos(angle)
@@ -65,10 +68,9 @@ class PointParticle:
                     break
 
     def draw(self, surf):
+        for line in self.field_lines:
+            if len(line) > 1:
+                pygame.draw.lines(surf, self.colour, False, line, 5)
         pygame.draw.circle(surf, self.colour, self.position, self.radius)
         pygame.draw.circle(surf, (0, 0, 0), self.position, self.radius, 3)
         surf.blit(self.sign, self.sign.get_rect(center=self.position))
-
-
-        for line in self.field_lines:
-            pygame.draw.lines(surf, (0, 255, 0), False, line, 5)
