@@ -10,6 +10,7 @@ class PointParticle:
     BLUE = (0, 153, 255)
     RED = (255, 43, 0)
 
+    step_amount = 10
 
     def __init__(self, position, charge=1.6e-19):
         self.position = pygame.Vector2(position)
@@ -24,7 +25,7 @@ class PointParticle:
         self.field_line_angles = list(range(0, 360, int(360 / self.num_field_lines)))  # List of angles
         self.field_lines = [[] for _ in range(self.num_field_lines)]
 
-        self.line_step = pygame.Vector2(10, 0) if self.charge > 0 else pygame.Vector2(-10, 0)
+        self.line_step = pygame.Vector2(self.step_amount, 0) if self.charge > 0 else pygame.Vector2(-self.step_amount, 0)
 
     def update(self, delta, particles):
         if self.dragging or not (True in [p.dragging for p in particles]):
@@ -64,7 +65,7 @@ class PointParticle:
                 direction = math.atan2(electric_field_y_net, electric_field_x_net)
                 self.field_lines[field_line_index].append(position.copy())
 
-                if end == True:
+                if end:
                     break
 
     def draw(self, surf):
