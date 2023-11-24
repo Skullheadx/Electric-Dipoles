@@ -12,7 +12,7 @@ is_running = True
 clock = pygame.Clock()
 delta = 0
 
-particles = [PointParticle((SCREEN_WIDTH / 3, SCREEN_HEIGHT / 2)),
+particles = [PointParticle((SCREEN_WIDTH / 3, SCREEN_HEIGHT / 2), 1.6e-19),
              PointParticle((SCREEN_WIDTH * 2 / 3, SCREEN_HEIGHT / 2), -1.6e-19)]
 
 while is_running:
