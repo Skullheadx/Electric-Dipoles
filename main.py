@@ -25,6 +25,8 @@ while is_running:
 
     screen.fill((255, 255, 255))
     for particle in particles:
+        particle.draw_field_lines(screen)
+    for particle in particles:
         particle.draw(screen)
 
     pygame.display.flip()
