@@ -1,12 +1,13 @@
-from setup import *
 from particle import PointParticle
+from setup import *
 
 is_running = True
 clock = pygame.Clock()
 delta = 0
 
 particles = [PointParticle((SCREEN_WIDTH / 3, SCREEN_HEIGHT / 2), 1.6e-19),
-             PointParticle((SCREEN_WIDTH * 2 / 3, SCREEN_HEIGHT / 2), -1.6e-19)]
+             PointParticle((SCREEN_WIDTH * 2 / 3, SCREEN_HEIGHT / 2), -1.6e-19),
+             PointParticle((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), 1.6e-19)]
 
 while is_running:
     for event in pygame.event.get():
@@ -17,8 +18,10 @@ while is_running:
         particle.update(delta, particles)
 
     screen.fill((255, 255, 255))
+    # for particle in particles:
+    #     particle.draw_field_lines(screen)
     for particle in particles:
-        particle.draw_field_lines(screen)
+        particle.draw_forces(screen)
     for particle in particles:
         particle.draw(screen)
 

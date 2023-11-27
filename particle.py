@@ -16,6 +16,8 @@ class PointParticle:
     default_num_field_lines = 64
     screen_rect = pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
+    electric_force_magnitude_factor = 1.5e34
+
     def __init__(self, position, charge=1.6e-19):
         self.position = pygame.Vector2(position)
         self.mouse_offset = pygame.Vector2(0, 0)
@@ -30,6 +32,9 @@ class PointParticle:
 
         self.line_step = pygame.Vector2(self.step_amount, 0) if self.charge > 0 else pygame.Vector2(-self.step_amount,
                                                                                                     0)
+
+        self.forces = []
+        self.net_electric_force = pygame.Vector2(0, 0)
 
     def update(self, delta, particles):
         if self.dragging or not (True in [p.dragging for p in particles]):
@@ -98,10 +103,30 @@ class PointParticle:
                 if end:
                     break
 
+        self.forces.clear()
+        self.net_electric_force = pygame.Vector2(0, 0)
+        for particle in particles:
+            if particle is self:
+                continue
+            diff = particle.position - self.position
+            angle = math.atan2(diff.y, diff.x)
+            electric_force = 8.99e9 * abs(particle.charge) * abs(self.charge) / pow(diff.length(), 2) * (
+                -1 if particle.charge * self.charge > 0 else 1)
+            self.forces.append(pygame.Vector2(electric_force * math.cos(angle), electric_force * math.sin(angle)))
+            self.net_electric_force += self.forces[-1]
+
     def draw_field_lines(self, surf):
         for line in self.field_lines:
             if len(line) > 1:
                 pygame.draw.lines(surf, self.field_line_colour, False, line, 3)
+
+    def draw_forces(self, surf):
+        for force in self.forces:
+            draw_arrow(surf, (30, 30, 30), self.position, self.position + force * self.electric_force_magnitude_factor,
+                       3, head_angle=math.pi * 3 / 4)
+        draw_arrow(surf, (0, 0, 0), self.position,
+                   self.position + self.net_electric_force * self.electric_force_magnitude_factor, 6,
+                   head_angle=math.pi * 3 / 4)
 
     def draw(self, surf):
         pygame.draw.circle(surf, self.colour, self.position, self.radius)
