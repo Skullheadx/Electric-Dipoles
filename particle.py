@@ -9,10 +9,12 @@ class PointParticle:
     BLUE = (0, 153, 255)
     RED = (255, 43, 0)
 
+    field_line_colour = (12, 12, 12)
+
     radius = 25
-    step_amount = 1
-    default_num_field_lines = 8
-    screen_rect = pygame.Rect(0,0,SCREEN_WIDTH, SCREEN_HEIGHT)
+    step_amount = 3
+    default_num_field_lines = 32
+    screen_rect = pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     def __init__(self, position, charge=1.6e-19):
         self.position = pygame.Vector2(position)
@@ -26,8 +28,8 @@ class PointParticle:
         self.field_line_angles = list(range(0, 360, math.ceil(360 / self.num_field_lines)))  # List of angles
         self.field_lines = [[] for _ in range(self.num_field_lines)]
 
-        self.line_step = pygame.Vector2(self.step_amount, 0) if self.charge > 0 else pygame.Vector2(-self.step_amount, 0)
-
+        self.line_step = pygame.Vector2(self.step_amount, 0) if self.charge > 0 else pygame.Vector2(-self.step_amount,
+                                                                                                    0)
 
     def update(self, delta, particles):
         if self.dragging or not (True in [p.dragging for p in particles]):
@@ -54,6 +56,13 @@ class PointParticle:
                     diff = position - particle.position
                     if diff.length() < particle.radius and particle is not self:
                         end = True
+                        if self.charge < 0:
+                            end2 = True
+                            for pt in self.field_lines[field_line_index]:
+                                if not self.screen_rect.collidepoint(pt):
+                                    end2 = False
+                            if end2:
+                                self.field_lines[field_line_index].clear()
                         break
                     if particle is self and diff.length() == 0:
                         continue
@@ -69,10 +78,12 @@ class PointParticle:
 
                 if end:
                     break
+
     def draw_field_lines(self, surf):
         for line in self.field_lines:
             if len(line) > 1:
-                pygame.draw.lines(surf, self.colour, False, line, 5)
+                pygame.draw.lines(surf, self.field_line_colour, False, line, 3)
+
     def draw(self, surf):
         pygame.draw.circle(surf, self.colour, self.position, self.radius)
         pygame.draw.circle(surf, (0, 0, 0), self.position, self.radius, 3)
