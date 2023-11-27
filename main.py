@@ -23,4 +23,4 @@ while is_running:
         particle.draw(screen)
 
     pygame.display.flip()
-    delta = clock.tick()
+    delta = clock.tick(60)

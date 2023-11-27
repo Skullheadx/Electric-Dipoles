@@ -12,8 +12,8 @@ class PointParticle:
     field_line_colour = (12, 12, 12)
 
     radius = 25
-    step_amount = 3
-    default_num_field_lines = 32
+    step_amount = 5
+    default_num_field_lines = 64
     screen_rect = pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     def __init__(self, position, charge=1.6e-19):
@@ -41,6 +41,25 @@ class PointParticle:
                     self.position = pygame.Vector2(pygame.mouse.get_pos()) - self.mouse_offset
             elif self.dragging:
                 self.dragging = False
+
+        if self.position.x + self.radius > SCREEN_WIDTH:
+            self.position.x = SCREEN_WIDTH - self.radius
+        elif self.position.x - self.radius < 0:
+            self.position.x = self.radius
+
+        if self.position.y + self.radius > SCREEN_HEIGHT:
+            self.position.y = SCREEN_HEIGHT - self.radius
+        elif self.position.y - self.radius < 0:
+            self.position.y = self.radius
+
+        for particle in particles:
+            if particle is self:
+                continue
+            if self.position.distance_to(particle.position) < self.radius + particle.radius:
+                midpoint = (self.position + particle.position) / 2
+                diff = self.position - particle.position
+                self.position = midpoint + diff.normalize() * (self.radius + particle.radius) / 2
+                particle.position = midpoint - diff.normalize() * (self.radius + particle.radius) / 2
 
         for field_line_index, angle in enumerate(self.field_line_angles):
             self.field_lines[field_line_index].clear()
