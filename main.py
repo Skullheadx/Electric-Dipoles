@@ -1,12 +1,5 @@
-import pygame
-
-pygame.init()
-
+from setup import *
 from particle import PointParticle
-
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Electric Dipoles")
 
 is_running = True
 clock = pygame.Clock()

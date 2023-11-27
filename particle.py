@@ -1,5 +1,4 @@
-import pygame
-import math
+from setup import *
 
 
 class PointParticle:
@@ -11,8 +10,9 @@ class PointParticle:
     RED = (255, 43, 0)
 
     radius = 25
-    step_amount = 10
-    default_num_field_lines = 16
+    step_amount = 1
+    default_num_field_lines = 8
+    screen_rect = pygame.Rect(0,0,SCREEN_WIDTH, SCREEN_HEIGHT)
 
     def __init__(self, position, charge=1.6e-19):
         self.position = pygame.Vector2(position)
@@ -28,8 +28,6 @@ class PointParticle:
 
         self.line_step = pygame.Vector2(self.step_amount, 0) if self.charge > 0 else pygame.Vector2(-self.step_amount, 0)
 
-        # Only if the field lines do not connect to the particle, then they are stored here
-        self.extra_field_lines = [[] for _ in range(self.num_field_lines)]
 
     def update(self, delta, particles):
         if self.dragging or not (True in [p.dragging for p in particles]):
@@ -44,11 +42,10 @@ class PointParticle:
 
         for field_line_index, angle in enumerate(self.field_line_angles):
             self.field_lines[field_line_index].clear()
-            self.extra_field_lines[field_line_index].clear()
             position = self.position.copy()
             direction = math.radians(angle)
             end = False
-            for i in range(1000):
+            for i in range(2000):
                 position += self.line_step.copy().rotate(math.degrees(direction))
 
                 electric_field_x_net = 0
@@ -67,22 +64,15 @@ class PointParticle:
 
                 direction = math.atan2(electric_field_y_net, electric_field_x_net)
                 self.field_lines[field_line_index].append(position.copy())
-                if math.hypot(electric_field_x_net, electric_field_y_net) > 1.5e-11 or (i==1000-1 and self.charge < 0):
-                    self.extra_field_lines[field_line_index] = self.field_lines[field_line_index].copy()
+                if not self.screen_rect.collidepoint(position):
                     end = True
-                    break
 
                 if end:
                     break
     def draw_field_lines(self, surf):
-        if self.charge > 0:
-            for line in self.field_lines:
-                if len(line) > 1:
-                    pygame.draw.lines(surf, self.colour, False, line, 5)
-        else:
-            for line in self.extra_field_lines:
-                if len(line) > 1:
-                    pygame.draw.lines(surf, self.colour, False, line, 5)
+        for line in self.field_lines:
+            if len(line) > 1:
+                pygame.draw.lines(surf, self.colour, False, line, 5)
     def draw(self, surf):
         pygame.draw.circle(surf, self.colour, self.position, self.radius)
         pygame.draw.circle(surf, (0, 0, 0), self.position, self.radius, 3)
