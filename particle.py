@@ -9,7 +9,7 @@ class PointParticle:
     BLUE = (0, 153, 255)
     RED = (255, 43, 0)
 
-    field_line_colour = (12, 12, 12)
+    field_line_colour = (100, 100, 100)
 
     radius = 25
     step_amount = 5
@@ -30,8 +30,7 @@ class PointParticle:
         self.field_line_angles = list(range(0, 360, math.ceil(360 / self.num_field_lines)))  # List of angles
         self.field_lines = [[] for _ in range(self.num_field_lines)]
 
-        self.line_step = pygame.Vector2(self.step_amount, 0) if self.charge > 0 else pygame.Vector2(-self.step_amount,
-                                                                                                    0)
+        self.line_step = pygame.Vector2(self.step_amount, 0) if self.charge > 0 else pygame.Vector2(-self.step_amount, 0)
 
         self.forces = []
         self.net_electric_force = pygame.Vector2(0, 0)
@@ -114,6 +113,9 @@ class PointParticle:
                 -1 if particle.charge * self.charge > 0 else 1)
             self.forces.append(pygame.Vector2(electric_force * math.cos(angle), electric_force * math.sin(angle)))
             self.net_electric_force += self.forces[-1]
+        
+        self.position += self.net_electric_force * delta / 1000 * 2e33
+
 
     def draw_field_lines(self, surf):
         for line in self.field_lines:
