@@ -1,5 +1,7 @@
 # Electric Dipole Simulation
 
+![image of simulation](simulation.png)
+
 ## Dependencies
 (You might have to uninstall pygame if it is already installed)
 
