@@ -2,9 +2,10 @@
 
 ## Dependencies
 (You might have to uninstall pygame if it is already installed)
+
 ```pip install pygame-ce library```
 
-## how to run
+## How to Run
 run main.py
 
 ## Controls
