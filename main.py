@@ -2,12 +2,12 @@ from particle import PointParticle
 from setup import *
 
 is_running = True
-clock = pygame.Clock()
+clock = pygame.time.Clock()
 delta = 0
 
 particles = [
-    PointParticle((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), -1.6e-19),
-    PointParticle((SCREEN_WIDTH / 3, SCREEN_HEIGHT / 2), 1.6e-19),
+    #PointParticle((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), -5 *1.6e-19),
+    PointParticle((SCREEN_WIDTH / 3, SCREEN_HEIGHT / 2), -1.6e-19),
     PointParticle((SCREEN_WIDTH * 2 / 3, SCREEN_HEIGHT / 2), 1.6e-19),
     # PointParticle((SCREEN_WIDTH / 2, SCREEN_HEIGHT * 2 / 3), 1.6e-19),
     # PointParticle((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3), 1.6e-19),
@@ -31,4 +31,6 @@ while is_running:
         particle.draw(screen)
 
     pygame.display.flip()
+    # pygame.image.save(pygame.display.get_surface(), "image.png")
+    # pygame.quit()
     delta = clock.tick(60)
